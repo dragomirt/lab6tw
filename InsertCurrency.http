@@ -1,0 +1,22 @@
+POST http://localhost:8080/currency/add
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="name"
+
+USD
+--WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="full_name"
+
+United States Dollar
+--WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="symbol"
+
+$
+--WebAppBoundary
+
+###

@@ -35,6 +35,12 @@ class Currency
      */
     protected $full_name;
 
+    /**
+     * @var CurrencyValue
+     * @ORM\OneToMany(targetEntity="CurrencyValue", mappedBy="currency")
+     */
+    private $values;
+
 
 //    Methods
     public function getId()
@@ -52,9 +58,9 @@ class Currency
         $this->name = $name;
     }
 
-    public function getSymbol($symbol)
+    public function getSymbol()
     {
-        $this->symbol = $symbol;
+        return $this->symbol;
     }
 
     /**
@@ -79,6 +85,14 @@ class Currency
     public function setFullName($full_name)
     {
         $this->full_name = $full_name;
+    }
+
+    /**
+     * @return CurrencyValue
+     */
+    public function getValues()
+    {
+        return $this->values;
     }
 
 }
