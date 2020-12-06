@@ -6,6 +6,8 @@ use Slim\Factory\AppFactory;
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../bootstrap.php';
 
+use src\Currency;
+
 // Creeaza instanta aplicatiei
 $app = AppFactory::create();
 
@@ -13,6 +15,19 @@ $app = AppFactory::create();
 $app->get('/', function (Request $request, Response $response, $args) {
     $response->getBody()->write($_ENV['DB_LOGIN']);
     return $response;
+});
+
+$app->get('/testwrite', function (Request $request, Response $response, $args) use (&$entityManager){
+
+    $product = new Currency();
+    $product->setName("USD");
+    $product->setFullName("United States Dollar");
+    $product->setSymbol("$");
+    $entityManager->persist($product);
+    $entityManager->flush();
+
+    $response->getBody()->write('wrote!');
+   return $response;
 });
 
 $app->run();
