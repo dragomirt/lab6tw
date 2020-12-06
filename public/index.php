@@ -7,6 +7,7 @@ require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../bootstrap.php';
 
 use src\Currency;
+use src\CurrencyValue;
 
 // Creeaza instanta aplicatiei
 $app = AppFactory::create();
@@ -19,14 +20,29 @@ $app->get('/', function (Request $request, Response $response, $args) {
 
 $app->get('/testwrite', function (Request $request, Response $response, $args) use (&$entityManager){
 
-    $product = new Currency();
-    $product->setName("USD");
-    $product->setFullName("United States Dollar");
-    $product->setSymbol("$");
-    $entityManager->persist($product);
+    $currencyValue = new CurrencyValue();
+    $currencyValue->setValue(1);
+    $currencyValue->setCurrencyId(3);
+    $currencyValue->setCreatedAt(new DateTime());
+    $currencyValue->setUpdatedAt(new DateTime());
+    $entityManager->persist($currencyValue);
+
     $entityManager->flush();
 
     $response->getBody()->write('wrote!');
+   return $response;
+});
+
+$app->get('/testread', function(Request $request, Response $response) use (&$entityManager) {
+    $currencyValue = $entityManager->find(CurrencyValue::class, 1);
+    $body = $response->getBody();
+
+    if (!$currencyValue) {
+        $body->write('No currencyValue found :(');
+        return $response;
+    }
+
+   $body->write(print_r($currencyValue->getCurrency()->getName(), true));
    return $response;
 });
 
