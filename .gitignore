@@ -2,3 +2,5 @@
 .idea
 vendor
 node_modules
+views/.next
+views/node_modules
