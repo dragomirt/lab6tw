@@ -67,6 +67,26 @@ $app->post('/currency/add', function(Request $request, Response $response) use (
     }
 });
 
+// Get all values
+$app->get('/currency/value', function(Request $request, Response $response) use (&$entityManager) {
+    $values = $entityManager->getRepository(CurrencyValue::class)->findAll();
+    if ($values === null) {
+        $response->getBody()->write(json_encode([]));
+        return $response;
+    }
+
+    $responseFormatted = array();
+    foreach ($values as $value) {
+        $responseFormatted[$value->getCurrency()->getId()][] = array(
+            'value' => $value->getValue(),
+            'created_at' => $value->getCreatedAt()
+        );
+    }
+
+    $response->getBody()->write(json_encode($responseFormatted));
+    return $response;
+});
+
 // Get data about one currency field
 $app->get('/currency/{id}', function(Request $request, Response $response, array $args) use (&$entityManager) {
     $id = $args['id'];
