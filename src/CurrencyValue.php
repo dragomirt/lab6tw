@@ -23,14 +23,8 @@ class CurrencyValue
     protected $id;
 
     /**
-     * @ORM\Column(type="integer")
-     */
-    protected $currency_id;
-
-    /**
      * @var Currency
-     * @ORM\ManyToOne(targetEntity="Currency")
-     * @ORM\JoinColumn(name="id")
+     * @ORM\ManyToOne(targetEntity="Currency", inversedBy="values")
      */
     private $currency;
 
@@ -55,22 +49,6 @@ class CurrencyValue
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getCurrencyId()
-    {
-        return $this->currency_id;
-    }
-
-    /**
-     * @param mixed $currency_id
-     */
-    public function setCurrencyId($currency_id)
-    {
-        $this->currency_id = $currency_id;
     }
 
     /**
@@ -122,7 +100,15 @@ class CurrencyValue
     }
 
     /**
-     * @return Currency
+     * @param Currency $currency
+     */
+    public function setCurrency($currency)
+    {
+        $this->currency = $currency;
+    }
+
+    /**
+     * @param Currency $currency
      */
     public function getCurrency()
     {

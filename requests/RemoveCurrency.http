@@ -1,0 +1,2 @@
+DELETE http://localhost:8080/currency/3
+Content-Type: multipart/form-data; boundary=WebAppBoundary

@@ -67,6 +67,7 @@ $app->post('/currency/add', function(Request $request, Response $response) use (
     }
 });
 
+// Get data about one currency field
 $app->get('/currency/{id}', function(Request $request, Response $response, array $args) use (&$entityManager) {
     $id = $args['id'];
 
@@ -89,6 +90,63 @@ $app->get('/currency/{id}', function(Request $request, Response $response, array
 
     $response->getBody()->write(json_encode($currencyData));
     return $response;
+});
+
+// Remove currency row
+$app->delete('/currency/{id}', function(Request $request, Response $response, array $args) use (&$entityManager) {
+   $id = $args['id'];
+
+   if ($id === null) {
+       $response->getBody()->write(json_encode([]));
+       return $response;
+   }
+
+   $currency = $entityManager->getRepository(Currency::class)->find($id);
+   if ($currency === null) {
+       $response->getBody()->write(json_encode([]));
+       return $response;
+   }
+
+   $currencyId = $currency->getId();
+
+   $entityManager->remove($currency);
+   $entityManager->flush();
+
+    $response->getBody()->write(json_encode($currencyId));
+    return $response;
+});
+
+// Set currency value
+$app->post('/currency/value/add', function(Request $request, Response $response) use (&$entityManager) {
+    $data = $request->getParsedBody();
+    try {
+        $currency_id = $data['currency_id'];
+        $value = $data['value'];
+        $created_at = isset($data['created_at']) ? new DateTime($data['created_at']) : new DateTime();
+
+        $currency = $entityManager->getRepository(Currency::class)->find($currency_id);
+
+        if ($currency === null) {
+            $response->getBody()->write(json_encode([]));
+            return $response;
+        }
+
+        $currencyValue = new CurrencyValue();
+        $currencyValue->setCurrency($currency);
+        $currencyValue->setValue((float) $value);
+        $currencyValue->setCreatedAt($created_at);
+        $currencyValue->setUpdatedAt(new DateTime());
+        $entityManager->persist($currencyValue);
+        $entityManager->flush();
+
+        $response->getBody()->write(json_encode($currencyValue->getId()));
+        return $response;
+
+    } catch (Exception $e) {
+        print_r($e->getMessage());
+        $response->getBody()->write(json_encode([]));
+        return $response;
+    }
 });
 
 $app->get('/testwrite', function (Request $request, Response $response, $args) use (&$entityManager){
