@@ -1,4 +1,4 @@
-POST http://localhost:8080/currency/add
+POST http://localhost:8080/api/currency/add
 Content-Type: multipart/form-data; boundary=WebAppBoundary
 
 --WebAppBoundary
