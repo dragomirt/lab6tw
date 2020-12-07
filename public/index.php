@@ -112,6 +112,29 @@ $app->get('/currency/{id}', function(Request $request, Response $response, array
     return $response;
 });
 
+$app->delete('/currency/value/{id}', function(Request $request, Response $response, array $args) use (&$entityManager) {
+    $id = $args['id'];
+
+    if ($id === null) {
+        $response->getBody()->write(json_encode([]));
+        return $response;
+    }
+
+    $currencyValue = $entityManager->getRepository(CurrencyValue::class)->find($id);
+    if ($currencyValue === null) {
+        $response->getBody()->write(json_encode([]));
+        return $response;
+    }
+
+    $currencyValueId = $currencyValue->getId();
+
+    $entityManager->remove($currencyValue);
+    $entityManager->flush();
+
+    $response->getBody()->write(json_encode($currencyValueId));
+    return $response;
+});
+
 // Remove currency row
 $app->delete('/currency/{id}', function(Request $request, Response $response, array $args) use (&$entityManager) {
    $id = $args['id'];
