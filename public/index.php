@@ -192,31 +192,25 @@ $app->post('/currency/value/add', function(Request $request, Response $response)
     }
 });
 
-$app->get('/testwrite', function (Request $request, Response $response, $args) use (&$entityManager){
-    $currencyValue = new CurrencyValue();
-    $currencyValue->setValue(1);
-    $currencyValue->setCurrencyId(3);
-    $currencyValue->setCreatedAt(new DateTime());
-    $currencyValue->setUpdatedAt(new DateTime());
-    $entityManager->persist($currencyValue);
+$app->get('/currency/value/{start_date}/{final_date}', function(Request $request, Response $response, array $args) use (&$entityManager) {
+   $start_date_raw = $args['start_date'];
+   $final_date_raw = $args['final_date'];
 
-    $entityManager->flush();
+   if (!($start_date_raw && $final_date_raw)) {
+       $response->getBody()->write(json_encode([]));
+       return $response;
+   }
 
-    $response->getBody()->write('wrote!');
-   return $response;
-});
+   $start_date = new DateTime($start_date_raw);
+   $final_date = new DateTime($final_date_raw);
 
-$app->get('/testread', function(Request $request, Response $response) use (&$entityManager) {
-    $currencyValue = $entityManager->find(CurrencyValue::class, 1);
-    $body = $response->getBody();
+   $values = $entityManager->getRepository(CurrencyValue::class)->getByDate($start_date, $final_date);
+   if ($values === null) {
+       $response->getBody()->write(json_encode([]));
+       return $response;
+   }
 
-    if (!$currencyValue) {
-        $body->write('No currencyValue found :(');
-        return $response;
-    }
-
-   $body->write(print_r($currencyValue->getCurrency()->getName(), true));
-   return $response;
+   print_r($values);
 });
 
 $app->run();

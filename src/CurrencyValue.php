@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Class CurrencyValue
  * @package src
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="src\Repository\CurrencyValueRepository")
  * @ORM\Table(name="currency_value")
  */
 class CurrencyValue
@@ -34,12 +34,12 @@ class CurrencyValue
     protected $value;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="date")
      */
     protected $created_at;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="date")
      */
     protected $updated_at;
 
