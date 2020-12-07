@@ -210,7 +210,22 @@ $app->get('/currency/value/{start_date}/{final_date}', function(Request $request
        return $response;
    }
 
-   print_r($values);
+   $rowValues = array();
+   foreach ($values as $value) {
+       $currency = $value->getCurrency();
+       array_push($rowValues, array(
+           'id' => $value->getId(),
+           'currency_id' => $currency->getId(),
+           'name' => $currency->getName(),
+           'full_name' => $currency->getFullName(),
+           'symbol' => $currency->getSymbol(),
+           'value' => $value->getValue(),
+           'date' => $value->getCreatedAt()
+       ));
+   }
+
+   $response->getBody()->write(json_encode($rowValues));
+   return $response;
 });
 
 $app->run();

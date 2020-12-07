@@ -14,7 +14,7 @@ class CurrencyValueRepository extends \Doctrine\ORM\EntityRepository
     {
         $qb = $this->createQueryBuilder("e");
         $qb
-            ->andWhere('e.date BETWEEN :from AND :to')
+            ->andWhere('e.created_at BETWEEN :from AND :to')
             ->setParameter('from', $from )
             ->setParameter('to', $to)
         ;
