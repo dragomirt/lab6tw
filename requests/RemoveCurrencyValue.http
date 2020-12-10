@@ -1,2 +1,2 @@
-DELETE http://localhost:8080/api/currency/value/3
+DELETE http://localhost:8080/api/currency/value/2
 Content-Type: multipart/form-data; boundary=WebAppBoundary

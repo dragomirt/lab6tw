@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Interfata Currency Service</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&family=Karla&display=swap" rel="stylesheet">
+
+    <style>
+        .container {
+            width: 1170px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        @media screen and (max-width: 1200px) {
+            .container {
+                width: 1080px;
+            }
+        }
+
+        @media screen and (max-width: 1100px) {
+            .container {
+                width: 1024px;
+            }
+        }
+
+        @media screen and (max-width: 1070px) {
+            .container {
+                width: 991px;
+            }
+        }
+
+        @media screen and (max-width: 1000px) {
+            .container {
+                width: 768px;
+            }
+        }
+
+        @media screen and (max-width: 800px) {
+            .container {
+                width: 540px;
+            }
+        }
+
+        @media screen and (max-width: 540px) {
+            .container {
+                width: 100%;
+            }
+        }
+
+        body {
+            background-color: RGB(48, 48, 75);
+        }
+
+        * {
+            color: RGB(232, 233, 240);
+        }
+
+        h1, h2 {
+            font-family: "Karla", serif;
+        }
+
+        p {
+            font-family: "Inconsolata", sans-serif;
+        }
+
+        hr {
+            border-color: RGB(194, 87, 225);
+            border-width: 2px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .spacer {
+            height: 100px;
+            width: 100%;
+        }
+
+        .currencyData .info * {
+            font-family: "Inconsolata", sans-serif;
+        }
+
+        .currencyData .info table {
+            border-spacing: 25px;
+        }
+
+        .currencyData .info th {
+            border-spacing: 25px;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .currencyData .info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Cursul Valutelor</h1>
+        <div class="right-side">
+            <p>Dragomir Țurcanu | MI-191</p>
+            <p>Varianta 22</p>
+        </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="currencyData">
+        <h2>Datele Valutelor</h2>
+        <hr>
+        <div class="info">
+
+            <table>
+
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    async function getCurrencyData() {
+        let response = await fetch("/api/currency");
+        return await response.json();
+    }
+
+    async function getCurrencyValue() {
+        let response = await fetch("/api/currency/value");
+        return await response.json();
+    }
+
+    function fillCurrencyDataInfo() {
+        let infoDOM = document.querySelector(".currencyData .info table");
+        if (!infoDOM) {
+            return false;
+        }
+        infoDOM.innerHTML = `            <tr>
+                <th>Denumire</th>
+                <th>Abreviere</th>
+                <th>Simbol</th>
+                <th>Valoare</th>
+                <th>Actualizat</th>
+            </tr>`;
+        getCurrencyData().then(data => {
+            for (const row of data) {
+                infoDOM.innerHTML += `<tr data-id="${row.id}"><td>${row.full_name}</td><td>${row.name}</td><td>${row.symbol}</td><td class="value"></td><td class="created_at"></td></tr>`;
+            }
+
+            fillCurrencyValueInfo();
+        });
+
+    }
+
+    function fillCurrencyValueInfo() {
+
+        let infoDOM = document.querySelector(".currencyData .info table");
+        if (!infoDOM) {
+            return false;
+        }
+
+        getCurrencyValue().then((data) => {
+            for (const [id, row] of Object.entries(data)) {
+                let item = infoDOM.querySelector(`tr[data-id="${id}"]`);
+
+                if (!item) {
+                    continue;
+                }
+
+                if (row) {
+                    let finalData = row[0];
+                    console.log(finalData);
+                    item.querySelector('.value').innerHTML = finalData.value;
+                    item.querySelector('.created_at').innerHTML = new Date(finalData.date.date).toDateString();
+                }
+            }
+        })
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        fillCurrencyDataInfo();
+    });
+</script>
+
+<!--<canvas id="myChart" width="400" height="400"></canvas>-->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js" integrity="sha512-SuxO9djzjML6b9w9/I07IWnLnQhgyYVSpHZx0JV97kGBfTIsUYlWflyuW4ypnvhBrslz1yJ3R+S14fdCWmSmSA==" crossorigin="anonymous"></script>
+<!--<script>-->
+<!--    var ctx = document.getElementById('myChart');-->
+<!--    var myChart = new Chart(ctx, {-->
+<!--        type: 'bar',-->
+<!--        data: {-->
+<!--            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],-->
+<!--            datasets: [{-->
+<!--                label: '# of Votes',-->
+<!--                data: [12, 19, 3, 5, 2, 3],-->
+<!--                backgroundColor: [-->
+<!--                    'rgba(255, 99, 132, 0.2)',-->
+<!--                    'rgba(54, 162, 235, 0.2)',-->
+<!--                    'rgba(255, 206, 86, 0.2)',-->
+<!--                    'rgba(75, 192, 192, 0.2)',-->
+<!--                    'rgba(153, 102, 255, 0.2)',-->
+<!--                    'rgba(255, 159, 64, 0.2)'-->
+<!--                ],-->
+<!--                borderColor: [-->
+<!--                    'rgba(255, 99, 132, 1)',-->
+<!--                    'rgba(54, 162, 235, 1)',-->
+<!--                    'rgba(255, 206, 86, 1)',-->
+<!--                    'rgba(75, 192, 192, 1)',-->
+<!--                    'rgba(153, 102, 255, 1)',-->
+<!--                    'rgba(255, 159, 64, 1)'-->
+<!--                ],-->
+<!--                borderWidth: 1-->
+<!--            }]-->
+<!--        },-->
+<!--        options: {-->
+<!--            scales: {-->
+<!--                yAxes: [{-->
+<!--                    ticks: {-->
+<!--                        beginAtZero: true-->
+<!--                    }-->
+<!--                }]-->
+<!--            }-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->
+
+</body>
+</html>

@@ -72,7 +72,7 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
 
 // Get all values
     $group->get('/currency/value', function(Request $request, Response $response) use (&$entityManager) {
-        $values = $entityManager->getRepository(CurrencyValue::class)->findAll();
+        $values = $entityManager->getRepository(CurrencyValue::class)->findBy([], ['created_at' => 'DESC']);
         if ($values === null) {
             $response->getBody()->write(json_encode([]));
             return $response;
@@ -189,7 +189,6 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
             return $response;
 
         } catch (Exception $e) {
-            print_r($e->getMessage());
             $response->getBody()->write(json_encode([]));
             return $response;
         }
@@ -230,6 +229,16 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
         $response->getBody()->write(json_encode($rowValues));
         return $response;
     });
+});
+
+$app->get('/', function (Request $request, Response $response, $args) {
+    $file = '../views/index.html';
+    if (file_exists($file)) {
+        $response->getBody()->write(file_get_contents($file));
+        return $response;
+    }
+
+    throw new \Slim\Exception\HttpNotFoundException($request, $response);
 });
 
 $app->run();
