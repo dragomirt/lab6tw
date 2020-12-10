@@ -156,7 +156,7 @@
         <p>Valuta <select name="currencySelectGraph" id="currencySelectGraph"></select></p>
         <p>Data inceput <input type="date" id="startDate"></p>
         <p>Data finala <input type="date" id="finishDate"></p>
-        <button id="showHistoryGraph" onclick="">Afiseaza graficul</button></p>
+        <button id="showHistoryGraph" onclick="generateGraph()">Afiseaza graficul</button></p>
 
         <canvas id="currencyGraph" width="400" height="400"></canvas>
     </div>
@@ -271,12 +271,6 @@
         });
     }
 
-    function generateGraph() {
-        getValuesByDate("2020-12-05", "2020-12-10").then((data) => {
-            console.log(data);
-        })
-    }
-
     document.addEventListener("DOMContentLoaded", () => {
         fillCurrencyDataInfo();
         getAvailableCurrencies();
@@ -288,19 +282,65 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js" integrity="sha512-SuxO9djzjML6b9w9/I07IWnLnQhgyYVSpHZx0JV97kGBfTIsUYlWflyuW4ypnvhBrslz1yJ3R+S14fdCWmSmSA==" crossorigin="anonymous"></script>
 <script>
     var ctx = document.getElementById('currencyGraph');
-    var currencyGraph = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-            datasets: [{
-                label: '# of Votes',
-                data: [12, 19, 3, 5, 2, 3],
-            }]
-        },
-        options: {
+    let currencyGraph = null;
 
+    function generateGraph() {
+        const currencyIdInput = document.querySelector('#currencySelectGraph');
+        const startDateInput = document.querySelector('#startDate');
+        const finishDateInput = document.querySelector('#finishDate');
+
+        if (!(currencyIdInput && startDateInput && finishDateInput)) {
+            return;
         }
-    });
+
+        currencyId = currencyIdInput.value;
+        startDate = startDateInput.value;
+        finishDate = finishDateInput.value;
+
+        console.log(startDate);
+
+        if (!startDate || !finishDate) {
+            alert("Setati data pentru grafic!");
+        }
+
+        getValuesByDate(startDate, finishDate).then((data) => {
+            if (currencyGraph) {
+                currencyGraph.clear();
+            }
+
+
+            let valuepoints = [];
+            let datepoints = [];
+            let fullName = "";
+
+            for (const row of data) {
+                if (row.currency_id !== parseInt(currencyId)) {
+                    continue;
+                }
+
+                fullName = row.full_name;
+                valuepoints.push(row.value);
+                datepoints.push(row.date.date.replace(" 00:00:00.000000", ""));
+            }
+
+            console.table(valuepoints, datepoints);
+
+            currencyGraph = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: datepoints,
+                    datasets: [{
+                        label: `Curs pentru ${fullName}`,
+                        data: valuepoints,
+                    }]
+                },
+                options: {
+
+                }
+            })
+            console.log(data);
+        })
+    }
 </script>
 
 </body>
