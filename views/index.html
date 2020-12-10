@@ -126,6 +126,10 @@
             align-items: center;
             flex-direction: column;
         }
+
+        #currencyGraph {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -174,6 +178,19 @@
         <button id="showHistoryGraph" onclick="generateGraph()">Afiseaza graficul</button></p>
 
         <canvas id="currencyGraph" width="400" height="400"></canvas>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="infoBlock inputNewCurrency">
+        <h2>Management Valute</h2>
+        <hr>
+        <div class="info">
+
+            <table>
+
+            </table>
+        </div>
     </div>
 
     <div class="spacer"></div>
@@ -289,6 +306,30 @@
         });
     }
 
+    function fillCurrencyManagerList() {
+        let infoDOM = document.querySelector(".inputNewCurrency .info table");
+        if (!infoDOM) {
+            return false;
+        }
+        infoDOM.innerHTML = `            <tr>
+                <th>ID</th>
+                <th>Denumire</th>
+                <th>Abreviere</th>
+                <th>Simbol</th>
+                <th>Actiune</th>
+            </tr>`;
+        getCurrencyData().then(data => {
+            for (const row of data) {
+                infoDOM.innerHTML += `<tr data-id="${row.id}"><td>${row.id}</td><td>${row.full_name}</td><td>${row.name}</td><td>${row.symbol}</td><td data-orderid="${row.id}" class="removeCurrency">X</td></tr>`;
+            }
+        });
+    }
+
+    function updateValues() {
+        fillCurrencyDataInfo();
+        getAvailableCurrencies();
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         fillCurrencyDataInfo();
         getAvailableCurrencies();
@@ -297,7 +338,7 @@
 
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js" integrity="sha512-SuxO9djzjML6b9w9/I07IWnLnQhgyYVSpHZx0JV97kGBfTIsUYlWflyuW4ypnvhBrslz1yJ3R+S14fdCWmSmSA==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
 <script>
     var ctx = document.getElementById('currencyGraph');
     let currencyGraph = null;
@@ -308,6 +349,7 @@
         const currencyIdInput = document.querySelector('#currencySelectGraph');
         const startDateInput = document.querySelector('#startDate');
         const finishDateInput = document.querySelector('#finishDate');
+        ctx.style.display = "block";
 
         if (!(currencyIdInput && startDateInput && finishDateInput)) {
             return;
