@@ -115,6 +115,32 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
         return $response;
     });
 
+    $group->get('/currency/value/{id}', function(Request $request, Response $response, array $args) use (&$entityManager) {
+        $id = $args['id'];
+
+        if ($id === null) {
+            $response->getBody()->write(json_encode([]));
+            return $response;
+        }
+
+        $currencyValues = $entityManager->getRepository(CurrencyValue::class)->findBy(["currency" => $id], ['created_at' => "DESC"]);
+        if ($currencyValues === null) {
+            $response->getBody()->write(json_encode([]));
+            return $response;
+        }
+        $valuesData = array();
+
+        foreach ($currencyValues as $value) {
+            $valuesData[] = array(
+                'value' => $value->getValue(),
+                'date' => $value->getCreatedAt()
+            );
+        }
+
+        $response->getBody()->write(json_encode($valuesData));
+        return $response;
+    });
+
     $group->delete('/currency/value/{id}', function(Request $request, Response $response, array $args) use (&$entityManager) {
         $id = $args['id'];
 

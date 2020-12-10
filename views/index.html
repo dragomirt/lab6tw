@@ -103,6 +103,10 @@
             justify-content: center;
             align-items: center;
         }
+
+        .currencyData .info .value {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -129,6 +133,17 @@
         </div>
     </div>
 
+    <div class="spacer"></div>
+
+    <div class="particularCurrencyData">
+        <h2>Info Valuta</h2>
+        <hr>
+        <div class="info">
+            <table>
+
+            </table>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -139,6 +154,11 @@
 
     async function getCurrencyValue() {
         let response = await fetch("/api/currency/value");
+        return await response.json();
+    }
+
+    async function getParticularCurrencyValue(currency_id) {
+        let response = await fetch(`/api/currency/${currency_id}/value`);
         return await response.json();
     }
 
