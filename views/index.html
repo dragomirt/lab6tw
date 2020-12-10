@@ -80,32 +80,36 @@
         }
 
         .spacer {
-            height: 100px;
+            height: 50px;
             width: 100%;
         }
 
-        .currencyData .info * {
+        .infoBlock .info * {
             font-family: "Inconsolata", sans-serif;
         }
 
-        .currencyData .info table {
+        .infoBlock .info table {
             border-spacing: 25px;
         }
 
-        .currencyData .info th {
+        .infoBlock .info th {
             border-spacing: 25px;
             font-weight: bold;
             font-size: 20px;
         }
 
-        .currencyData .info {
+        .infoBlock .info {
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .currencyData .info .value {
+        .infoBlock .info .value {
             font-weight: bold;
+        }
+
+        .infoBlock select, .infoBlock button, .infoBlock input {
+            color: RGB(148, 159, 224);
         }
     </style>
 </head>
@@ -122,7 +126,7 @@
 
     <div class="spacer"></div>
 
-    <div class="currencyData">
+    <div class="infoBlock currencyData">
         <h2>Datele Valutelor</h2>
         <hr>
         <div class="info">
@@ -135,18 +139,32 @@
 
     <div class="spacer"></div>
 
-    <div class="particularCurrencyData">
+    <div class="infoBlock particularCurrencyData">
         <h2>Info Valuta</h2>
         <hr>
+        <p>Doresc sa aflu mai multe despre istoricul <select name="currencySelect" id="currencySelect"></select> <button id="showHistory" onclick="fillParticularCurrencyValueHistory()">Arata Istoricul</button></p>
         <div class="info">
-            <table>
-
-            </table>
+            <table></table>
         </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="infoBlock">
+        <h2>Evolutia in timp</h2>
+        <hr>
+        <p>Valuta <select name="currencySelectGraph" id="currencySelectGraph"></select></p>
+        <p>Data inceput <input type="date" id="startDate"></p>
+        <p>Data finala <input type="date" id="finishDate"></p>
+        <button id="showHistoryGraph" onclick="">Afiseaza graficul</button></p>
+
+        <canvas id="currencyGraph" width="400" height="400"></canvas>
     </div>
 </div>
 
 <script>
+    let availableCurrencies = [];
+
     async function getCurrencyData() {
         let response = await fetch("/api/currency");
         return await response.json();
@@ -158,8 +176,30 @@
     }
 
     async function getParticularCurrencyValue(currency_id) {
-        let response = await fetch(`/api/currency/${currency_id}/value`);
+        let response = await fetch(`/api/currency/value/${currency_id}`);
         return await response.json();
+    }
+
+    async function getValuesByDate(start_date, final_date) {
+        let response = await fetch(`/api/currency/value/${start_date}/${final_date}`);
+        return await response.json();
+    }
+
+    function getAvailableCurrencies() {
+        let currencySelect = document.querySelector('select#currencySelect');
+        let currencySelectGraph = document.querySelector('select#currencySelectGraph');
+
+        if (!currencySelect || !currencySelectGraph) {
+            return;
+        }
+
+        getCurrencyData().then(data => {
+            for (const row of data) {
+                availableCurrencies[row.id] = {full_name: row.full_name, symbol: row.symbol};
+                currencySelect.innerHTML += `<option value="${row.id}">${row.full_name}</option>`;
+                currencySelectGraph.innerHTML += `<option value="${row.id}">${row.full_name}</option>`;
+            }
+        });
     }
 
     function fillCurrencyDataInfo() {
@@ -209,54 +249,59 @@
         })
     }
 
+    function fillParticularCurrencyValueHistory() {
+        let infoDOM = document.querySelector(".particularCurrencyData .info table");
+        if (!infoDOM) {
+            return false;
+        }
+
+        let selectedCurrency = document.querySelector('select#currencySelect');
+        if (!selectedCurrency) {
+            return false;
+        }
+
+        infoDOM.innerHTML = `            <tr>
+                <th>Valoare</th>
+                <th>Actualizat</th>
+            </tr>`;
+        getParticularCurrencyValue(selectedCurrency.value).then(data => {
+            for (const row of data) {
+                infoDOM.innerHTML += `<td class="value">${row.value}</td><td class="created_at">${new Date(row.date.date).toDateString()}</td></tr>`;
+            }
+        });
+    }
+
+    function generateGraph() {
+        getValuesByDate("2020-12-05", "2020-12-10").then((data) => {
+            console.log(data);
+        })
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         fillCurrencyDataInfo();
+        getAvailableCurrencies();
     });
 </script>
 
-<!--<canvas id="myChart" width="400" height="400"></canvas>-->
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js" integrity="sha512-SuxO9djzjML6b9w9/I07IWnLnQhgyYVSpHZx0JV97kGBfTIsUYlWflyuW4ypnvhBrslz1yJ3R+S14fdCWmSmSA==" crossorigin="anonymous"></script>
-<!--<script>-->
-<!--    var ctx = document.getElementById('myChart');-->
-<!--    var myChart = new Chart(ctx, {-->
-<!--        type: 'bar',-->
-<!--        data: {-->
-<!--            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],-->
-<!--            datasets: [{-->
-<!--                label: '# of Votes',-->
-<!--                data: [12, 19, 3, 5, 2, 3],-->
-<!--                backgroundColor: [-->
-<!--                    'rgba(255, 99, 132, 0.2)',-->
-<!--                    'rgba(54, 162, 235, 0.2)',-->
-<!--                    'rgba(255, 206, 86, 0.2)',-->
-<!--                    'rgba(75, 192, 192, 0.2)',-->
-<!--                    'rgba(153, 102, 255, 0.2)',-->
-<!--                    'rgba(255, 159, 64, 0.2)'-->
-<!--                ],-->
-<!--                borderColor: [-->
-<!--                    'rgba(255, 99, 132, 1)',-->
-<!--                    'rgba(54, 162, 235, 1)',-->
-<!--                    'rgba(255, 206, 86, 1)',-->
-<!--                    'rgba(75, 192, 192, 1)',-->
-<!--                    'rgba(153, 102, 255, 1)',-->
-<!--                    'rgba(255, 159, 64, 1)'-->
-<!--                ],-->
-<!--                borderWidth: 1-->
-<!--            }]-->
-<!--        },-->
-<!--        options: {-->
-<!--            scales: {-->
-<!--                yAxes: [{-->
-<!--                    ticks: {-->
-<!--                        beginAtZero: true-->
-<!--                    }-->
-<!--                }]-->
-<!--            }-->
-<!--        }-->
-<!--    });-->
-<!--</script>-->
+<script>
+    var ctx = document.getElementById('currencyGraph');
+    var currencyGraph = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+            datasets: [{
+                label: '# of Votes',
+                data: [12, 19, 3, 5, 2, 3],
+            }]
+        },
+        options: {
+
+        }
+    });
+</script>
 
 </body>
 </html>
