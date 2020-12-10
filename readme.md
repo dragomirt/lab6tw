@@ -29,6 +29,7 @@ It will create / update the db structure for better usage.
 
 ### Front end stack
 ___
-Same philosophy as above, complex but fun. Instead of rendering the pages from the application routes, I've created a separate front end based on Next.js which renders the content on the server. It enables quick content delivery wihtout any stutter or jitter, but requires more processing power because of the increased number of dependencies and processes running.
+Here I took the philosophy of simpler is better and used no framework. My choise fell on Chart.js [https://www.chartjs.org/] when it came to graphs, and I'm quite satisfied with the result.
 
-The instructions will lead below once I do something. Hang on ;)
+![alt text](screenshot.png)
+
