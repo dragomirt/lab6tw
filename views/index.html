@@ -130,6 +130,10 @@
         #currencyGraph {
             display: none;
         }
+
+        .removeCurrency {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -182,18 +186,6 @@
 
     <div class="spacer"></div>
 
-    <div class="infoBlock inputNewCurrency">
-        <h2>Management Valute</h2>
-        <hr>
-        <div class="info">
-
-            <table>
-
-            </table>
-        </div>
-    </div>
-
-    <div class="spacer"></div>
     <footer><p>Dezvoltat cu entuziasm de catre <b>Dragomir Țurcanu</b> | MI-191 ❤️</p></footer>
 </div>
 
@@ -227,6 +219,9 @@
         if (!currencySelect || !currencySelectGraph) {
             return;
         }
+
+        currencySelect.innerHTML = "";
+        currencySelectGraph.innerHTML = "";
 
         getCurrencyData().then(data => {
             for (const row of data) {
@@ -306,30 +301,6 @@
         });
     }
 
-    function fillCurrencyManagerList() {
-        let infoDOM = document.querySelector(".inputNewCurrency .info table");
-        if (!infoDOM) {
-            return false;
-        }
-        infoDOM.innerHTML = `            <tr>
-                <th>ID</th>
-                <th>Denumire</th>
-                <th>Abreviere</th>
-                <th>Simbol</th>
-                <th>Actiune</th>
-            </tr>`;
-        getCurrencyData().then(data => {
-            for (const row of data) {
-                infoDOM.innerHTML += `<tr data-id="${row.id}"><td>${row.id}</td><td>${row.full_name}</td><td>${row.name}</td><td>${row.symbol}</td><td data-orderid="${row.id}" class="removeCurrency">X</td></tr>`;
-            }
-        });
-    }
-
-    function updateValues() {
-        fillCurrencyDataInfo();
-        getAvailableCurrencies();
-    }
-
     document.addEventListener("DOMContentLoaded", () => {
         fillCurrencyDataInfo();
         getAvailableCurrencies();
@@ -358,8 +329,6 @@
         currencyId = currencyIdInput.value;
         startDate = startDateInput.value;
         finishDate = finishDateInput.value;
-
-        console.log(startDate);
 
         if (!startDate || !finishDate) {
             alert("Setati data pentru grafic!");
