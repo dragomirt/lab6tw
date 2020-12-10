@@ -53,11 +53,11 @@
         }
 
         body {
-            background-color: RGB(48, 48, 75);
+            background-color: rgb(48, 48, 75);
         }
 
         * {
-            color: RGB(232, 233, 240);
+            color: rgb(232, 233, 240);
         }
 
         h1, h2 {
@@ -69,7 +69,7 @@
         }
 
         hr {
-            border-color: RGB(194, 87, 225);
+            border-color: rgb(194, 87, 225);
             border-width: 2px;
         }
 
@@ -109,7 +109,14 @@
         }
 
         .infoBlock select, .infoBlock button, .infoBlock input {
-            color: RGB(148, 159, 224);
+            color: rgb(148, 159, 224);
+        }
+
+        footer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
     </style>
 </head>
@@ -160,6 +167,9 @@
 
         <canvas id="currencyGraph" width="400" height="400"></canvas>
     </div>
+
+    <div class="spacer"></div>
+    <footer><p>Dezvoltat cu entuziasm de catre <b>Dragomir Țurcanu</b> | MI-191 ❤️</p></footer>
 </div>
 
 <script>
@@ -283,6 +293,8 @@
 <script>
     var ctx = document.getElementById('currencyGraph');
     let currencyGraph = null;
+    Chart.defaults.global.defaultFontColor = "rgba(232, 233, 240, 1.0)";
+    Chart.defaults.global.defaultFontFamily = "Inconsolata, sans-serif";
 
     function generateGraph() {
         const currencyIdInput = document.querySelector('#currencySelectGraph');
@@ -331,13 +343,15 @@
                     labels: datepoints,
                     datasets: [{
                         label: `Curs pentru ${fullName}`,
+                        borderColor: "rgba(194, 87, 225, 1.0)",
+                        pointBorderColor: "rgba(148, 159, 224, 1.0)",
                         data: valuepoints,
                     }]
                 },
                 options: {
-
                 }
-            })
+            });
+
             console.log(data);
         })
     }
