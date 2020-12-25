@@ -7,6 +7,7 @@
 \usepackage{titlesec}
 \usepackage{graphicx}
 \graphicspath{ {./images/} }
+\usepackage[section]{placeins}
 
 \titleformat{\chapter}[display]
   {\normalfont\bfseries}{}{0pt}{\Huge}
@@ -21,6 +22,15 @@
 \date{Decembrie 25, 2020}
 
 \begin{document}
+
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+\setminted{
+	breaklines=true,
+	breakanywhere=true,
+	bgcolor=bg,
+	breaksymbolleft=,
+	breakanywheresymbolpre=
+}
 
 \maketitle
 \tableofcontents
@@ -76,22 +86,106 @@ Ideea aplicației este crearea unei interfețe interactive pentru vizualizarea i
 Supranumitul API conține adrese pentru inserarea, modificarea, selectarea și ștergerea informației.
 
 \section{Explicații Tehnice}
+
+\subsection{Front End}
 Așa deci, odată ce am discutat teoria, este timpul de a demonstra un pic de practică \emph{as well}. Mai jos este demonstrată aplicația în starea sa normală, pe unica pagină grafică a websiteului :D
 
-\begin{figure}
+\begin{figure}[H]
 \centering
 	\includegraphics[width=1.0\textwidth]{homepage}
 \end{figure}
 
+Pe această pagină putem admira locul primar de interacțiune a unui utilizator de rând cu aplicația în cauză. Aici este posibilă monitorizarea și selectarea valorilor pentru citire.
+
+Majoritatea requesturilor sunt transmise de către Javascriptul din browser în formatul următor.
 
 
-\definecolor{bg}{rgb}{0.95,0.95,0.95}
-\begin{minted}[bgcolor=bg]{php}
+\begin{minted}{javascript}
+    async function getCurrencyData() {
+        let response = await fetch("/api/currency");
+        return await response.json();
+    }
+\end{minted}
+
+Fiecare request fiind modificat pentru endpoint-ul dorit. Deci requestul de sus întoarce informații generale despre toate valutele.
+
+Funcția întreagă ce conține requestul arată în modul următor.
+\begin{minted}{javascript}
+    function getAvailableCurrencies() {
+        let currencySelect = document.querySelector('select#currencySelect');
+        let currencySelectGraph = document.querySelector('select#currencySelectGraph');
+
+        if (!currencySelect || !currencySelectGraph) {
+            return;
+        }
+
+        currencySelect.innerHTML = "";
+        currencySelectGraph.innerHTML = "";
+
+        getCurrencyData().then(data => {
+            for (const row of data) {
+                availableCurrencies[row.id] = {full_name: row.full_name, symbol: row.symbol};
+                currencySelect.innerHTML += `<option value="${row.id}">${row.full_name}</option>`;
+                currencySelectGraph.innerHTML += `<option value="${row.id}">${row.full_name}</option>`;
+            }
+        });
+    }
+\end{minted}
+
+Aceasta ia răspunsul requestului în format \textbf{JSON} și înscrie în pagină. La fel sunt realizate celelalte blocuri din pagină.
+
+\subsection{Baza de date}
+
+Baza de date în acest exemplu a fost realizată într-un mod maximal simplistic. Există 2 tabele \emph{currency} și \emph{currency\_value}.
+
+\textbf{"currency"} presupune un tabel ce conține informație generală despre fiecare valută. Denumirea, simbolul, abrevierea și de genul. 
+
+\textbf{"currency\_value"} la rândul său conține informație ce ține de valoarea valutei la o dată anumită. Sunt folosite chei străine secundare pentru a indica corelația între aceste 2 tabele.
+
+Există relația One\-To\-Many la \emph{currency.id} spre\emph{\texttt{currency\_value}} și invers, Many\-To\-One pe aceleași fielduri, pentru a extrage cu ușurință informația în ambele părți.
+
+Tot arată în modul următor.
+
+\begin{figure}[H]
+\centering
+	\includegraphics{database_schema}
+\end{figure}
+\FloatBarrier
+
+\subsection{Back End}
+Cum deja am menționat, alegerea a căzut pe \textbf{Slim Framework}. Aceasta a permis crearea rapidă a rutelor pentru API și descrierea simplă a logicii aplicației.
+
+Spre exemplu, ruta ce întoarce datele despre valori, arată în modul următor.
+
+\begin{minted}{php}
 <?php
-print_f("test", true);
+// Get all values
+    $group->get('/currency/value', function(Request $request, Response $response) use (&$entityManager) { // Este funcția părinte ce encapsulează o funcție anonimă ce preia entityManager pentru a modifica datele cu ajutorul ORM
+   
+        $values = $entityManager->getRepository(CurrencyValue::class)->findBy([], ['created_at' => 'DESC']); // Sunt datele provenite din DB
+        if ($values === null) { // Dacă valorile sunt nule, sfarsește funcția și întoarce un array gol ca http răspuns
+            $response->getBody()->write(json_encode([]));
+            return $response;
+        }
+
+        $responseFormatted = array();
+        foreach ($values as $value) { // Pentru fiecare înscriere în DB, scrie datele în array-ul decodat pentru răspuns
+            $responseFormatted[$value->getCurrency()->getId()][] = array(
+                'value' => $value->getValue(),
+                'date' => $value->getCreatedAt()
+            );
+        }
+
+// Codifică răspunsul în format JSON și întoarce clientului
+        $response->getBody()->write(json_encode($responseFormatted));
+        return $response;
+    });
 ?>
 \end{minted}
 
+Mai multe detalii sunt disponibile pe pagina GitHub a proiectului disponibilă mai sus.
 
+\chapter{Concluzie}
+Dezvoltarea acestui laborator a contribuit la îmbunătățirea abilităților de creare a aplicațiilor de tip API + AJAX, și a fost un proces total interesant, ce presupun că este reflectat în entuziasmul cu care prezint lucrarea. \emph{Apreciez feedbackul!}
 
 \end{document}
