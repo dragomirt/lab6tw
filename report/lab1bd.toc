@@ -1,0 +1,7 @@
+\contentsline {chapter}{\numberline {1}Sarcina}{2}{chapter.1}%
+\contentsline {section}{Obiecivele}{2}{section*.2}%
+\contentsline {section}{Abordarea Proprie}{2}{section*.2}%
+\contentsline {chapter}{\numberline {2}Rezolvarea}{3}{chapter.2}%
+\contentsline {section}{Stack-ul Tehnic}{3}{section*.3}%
+\contentsline {section}{Concepția}{3}{section*.3}%
+\contentsline {section}{Explicații Tehnice}{4}{section*.3}%
