@@ -4,19 +4,19 @@ Content-Type: multipart/form-data; boundary=WebAppBoundary
 --WebAppBoundary
 Content-Disposition: form-data; name="currency_id"
 
-5
+4
 --WebAppBoundary
 
 --WebAppBoundary
 Content-Disposition: form-data; name="value"
 
-0.166
+20.67
 --WebAppBoundary
 
 --WebAppBoundary
 Content-Disposition: form-data; name="created_at"
 
-2020-12-10
+2020-12-05
 --WebAppBoundary
 
 

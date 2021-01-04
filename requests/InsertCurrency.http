@@ -4,19 +4,19 @@ Content-Type: multipart/form-data; boundary=WebAppBoundary
 --WebAppBoundary
 Content-Disposition: form-data; name="name"
 
-JPY
+RUB
 --WebAppBoundary
 
 --WebAppBoundary
 Content-Disposition: form-data; name="full_name"
 
-Japanese Yen
+Russian Rouble
 --WebAppBoundary
 
 --WebAppBoundary
 Content-Disposition: form-data; name="symbol"
 
-¥
+₽
 --WebAppBoundary
 
 ###

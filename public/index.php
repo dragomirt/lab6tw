@@ -267,4 +267,14 @@ $app->get('/', function (Request $request, Response $response, $args) {
     throw new \Slim\Exception\HttpNotFoundException($request, $response);
 });
 
+$app->get('/admin', function (Request $request, Response $response, $args) {
+    $file = '../views/admin.html';
+    if (file_exists($file)) {
+        $response->getBody()->write(file_get_contents($file));
+        return $response;
+    }
+
+    throw new \Slim\Exception\HttpNotFoundException($request, $response);
+});
+
 $app->run();
