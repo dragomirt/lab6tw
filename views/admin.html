@@ -247,10 +247,14 @@
         formData.append('full_name', data.full_name);
         formData.append('symbol', data.symbol);
 
+        let headers = new Headers();
+        headers.set('Authorization', 'Basic ' + btoa('pip' + ":" + 'pop'));
+
         let response = await fetch('/api/currency/add',
             {
                 method: "POST",
-                body: formData
+                body: formData,
+                headers: headers
             });
         return await response.json();
     }

@@ -15,5 +15,11 @@
     "vlucas/phpdotenv": "*",
     "doctrine/orm": "*",
     "ext-json": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "public/",
+      "src\\": "src/"
+    }
   }
 }

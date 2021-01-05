@@ -10,7 +10,7 @@ $dotenv = DotenvInstance::createImmutable(__DIR__);
 $dotenv->load();
 
 require_once "vendor/autoload.php";
-require_once "autoloader.php";
+//require_once "autoloader.php";
 
 // Create a simple "default" Doctrine ORM configuration for Annotations
 $isDevMode = true;

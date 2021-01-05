@@ -1,4 +1,6 @@
 <?php
+namespace App;
+
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
@@ -68,7 +70,7 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
             $response->getBody()->write(print_r($e, true));
             return $response;
         }
-    });
+    })->addMiddleware(new AdminMiddleware());
 
 //    Edit currency
     $group->post('/currency/edit', function(Request $request, Response $response) use (&$entityManager) {
@@ -103,7 +105,7 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
             $response->getBody()->write(print_r($e, true));
             return $response;
         }
-    });
+    })->addMiddleware(new AdminMiddleware());
 
 // Get all values
     $group->get('/currency/value', function(Request $request, Response $response) use (&$entityManager) {
@@ -198,7 +200,7 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
 
         $response->getBody()->write(json_encode($currencyValueId));
         return $response;
-    });
+    })->addMiddleware(new AdminMiddleware());;
 
 // Remove currency row
     $group->delete('/currency/{id}', function(Request $request, Response $response, array $args) use (&$entityManager) {
@@ -229,7 +231,7 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
 
         $response->getBody()->write(json_encode($currencyId));
         return $response;
-    });
+    })->addMiddleware(new AdminMiddleware());
 
 // Set currency value
     $group->post('/currency/value/add', function(Request $request, Response $response) use (&$entityManager) {
@@ -261,7 +263,7 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
             $response->getBody()->write(json_encode([]));
             return $response;
         }
-    });
+    })->addMiddleware(new AdminMiddleware());
 
     $group->get('/currency/value/{start_date}/{final_date}', function(Request $request, Response $response, array $args) use (&$entityManager) {
         $start_date_raw = $args['start_date'];
