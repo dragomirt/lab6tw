@@ -299,6 +299,7 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
     });
 });
 
+//Views
 $app->get('/', function (Request $request, Response $response, $args) {
     $file = '../views/index.html';
     if (file_exists($file)) {

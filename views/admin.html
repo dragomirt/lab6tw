@@ -240,6 +240,21 @@
         return await response.json();
     }
 
+    async function addCurrency(data)
+    {
+        let formData = new FormData();
+        formData.append('name', data.name);
+        formData.append('full_name', data.full_name);
+        formData.append('symbol', data.symbol);
+
+        let response = await fetch('/api/currency/add',
+            {
+                method: "POST",
+                body: formData
+            });
+        return await response.json();
+    }
+
     function getAvailableCurrencies() {
         let currencySelect = document.querySelector('select#currencySelect');
         let currencySelectGraph = document.querySelector('select#currencySelectGraph');
@@ -266,6 +281,7 @@
             return false;
         }
         infoDOM.innerHTML = `            <tr>
+                <th>ID</th>
                 <th>Denumire</th>
                 <th>Abreviere</th>
                 <th>Simbol</th>
@@ -276,10 +292,11 @@
             </tr>`;
         getCurrencyData().then(data => {
             for (const row of data) {
-                infoDOM.innerHTML += `<tr data-id="${row.id}"><td class="full_name">${row.full_name}</td><td class="name">${row.name}</td><td class="symbol">${row.symbol}</td><td class="value"></td><td class="created_at"></td><td class="action edit_currency">edit</td><td class="action remove_currency">X</td></tr>`;
+                infoDOM.innerHTML += `<tr data-id="${row.id}"><td class="item_id">${row.id}</td><td class="full_name">${row.full_name}</td><td class="name">${row.name}</td><td class="symbol">${row.symbol}</td><td class="value"></td><td class="created_at"></td><td class="action edit_currency">edit</td><td class="action remove_currency">X</td></tr>`;
             }
 
             fillCurrencyValueInfo();
+            infoDOM.innerHTML += `<tr data-id=""><td class="item_id"></td><td class="full_name"></td><td class="name"></td><td class="symbol"></td><td class="value"></td><td class="created_at"></td><td class="action add_currency" onclick="handleAdd()">adauga</td><td class="action remove_currency"></td></tr>`;
         });
 
     }
@@ -421,6 +438,21 @@
                 }
             }
         });
+    }
+
+    function handleAdd()
+    {
+        let name = prompt("Indicati numele valutei prescurtat (ex. EUR)");
+        let full_name = prompt("Indicati numele deplin (ex. Euro)");
+        let symbol = prompt("Indicati simbolul valutei (ex. €)");
+
+        if (confirm(`Confirmati ca doriti sa adaugati valuta urmatoarele date?\n\nNume: ${name}\nNume desfasurat: ${full_name}\nSimbol: ${symbol}`)) {
+            addCurrency({name: name, full_name: full_name, symbol: symbol})
+            .then((res) => {
+               console.log(res);
+               fillCurrencyDataInfo();
+            });
+        }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
