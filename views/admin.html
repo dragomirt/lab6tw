@@ -270,6 +270,15 @@
         return await response.json();
     }
 
+    async function removeEntry(entry_id)
+    {
+        let response = await fetch(`/api/currency/value/${entry_id}`,
+            {
+                method: "DELETE"
+            });
+        return await response.json();
+    }
+
     function getAvailableCurrencies() {
         let currencySelect = document.querySelector('select#currencySelect');
         let currencySelectGraph = document.querySelector('select#currencySelectGraph');
@@ -360,11 +369,11 @@
             </tr>`;
         getParticularCurrencyValue(selectedCurrency.value).then(data => {
             for (const row of data) {
-                infoDOM.innerHTML += `<td class="id">${row.id}</td><td class="value">${row.value}</td><td class="created_at">${new Date(row.date.date).toDateString()}</td></tr>`;
+                infoDOM.innerHTML += `<tr data-id="${row.id}"><td class="id">${row.id}</td><td class="value">${row.value}</td><td class="created_at">${new Date(row.date.date).toDateString()}</td><td class="action removeEntry" onclick="handleRemoveEntry(${row.id})">X</td></tr>`;
             }
         });
 
-        infoDOM.innerHTML += `<td class="id"></td><td class="value"></td><td class="created_at" onclick="handleAddEntry(${selectedCurrency.value})">adauga</td></tr>`;
+        infoDOM.innerHTML += `<td class="id"></td><td class="value"></td><td class="action created_at" onclick="handleAddEntry(${selectedCurrency.value})">adauga</td></tr>`;
     }
 
     function handleRemove() {
@@ -488,6 +497,24 @@
                     });
             }
         }
+    }
+
+    function handleRemoveEntry(entry_id)
+    {
+        let entry = document.querySelector(`.particularCurrencyData .info tr[data-id="${entry_id}"]`);
+        if (entry) {
+            let value = entry.querySelector('.value').innerHTML;
+            let date = entry.querySelector('.created_at').innerHTML;
+
+            if (confirm(`Doriti sa stergeti intrarea de la data ${date}?`))
+            {
+                removeEntry(entry_id).then((res) => {
+                    console.log(res);
+                    fillParticularCurrencyValueHistory();
+                });
+            }
+        }
+
     }
 
     document.addEventListener("DOMContentLoaded", () => {
