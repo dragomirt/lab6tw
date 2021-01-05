@@ -167,6 +167,7 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
 
         foreach ($currencyValues as $value) {
             $valuesData[] = array(
+                'id' => $value->getId(),
                 'value' => $value->getValue(),
                 'date' => $value->getCreatedAt()
             );

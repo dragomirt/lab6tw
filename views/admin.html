@@ -255,6 +255,21 @@
         return await response.json();
     }
 
+    async function addEntry(currency_id, data)
+    {
+        let formData = new FormData();
+        formData.append('currency_id', currency_id);
+        formData.append('value', data.value);
+        formData.append('created_at', data.created_at);
+
+        let response = await fetch('/api/currency/value/add',
+            {
+                method: "POST",
+                body: formData
+            });
+        return await response.json();
+    }
+
     function getAvailableCurrencies() {
         let currencySelect = document.querySelector('select#currencySelect');
         let currencySelectGraph = document.querySelector('select#currencySelectGraph');
@@ -323,7 +338,7 @@
                     item.querySelector('.created_at').innerHTML = new Date(finalData.date.date).toDateString();
                 }
             }
-        })
+        });
     }
 
     function fillParticularCurrencyValueHistory() {
@@ -338,14 +353,18 @@
         }
 
         infoDOM.innerHTML = `            <tr>
+                <th>ID</th>
                 <th>Valoare</th>
                 <th>Actualizat</th>
+                <th>Sterge</th>
             </tr>`;
         getParticularCurrencyValue(selectedCurrency.value).then(data => {
             for (const row of data) {
-                infoDOM.innerHTML += `<td class="value">${row.value}</td><td class="created_at">${new Date(row.date.date).toDateString()}</td></tr>`;
+                infoDOM.innerHTML += `<td class="id">${row.id}</td><td class="value">${row.value}</td><td class="created_at">${new Date(row.date.date).toDateString()}</td></tr>`;
             }
         });
+
+        infoDOM.innerHTML += `<td class="id"></td><td class="value"></td><td class="created_at" onclick="handleAddEntry(${selectedCurrency.value})">adauga</td></tr>`;
     }
 
     function handleRemove() {
@@ -455,12 +474,27 @@
         }
     }
 
+    function handleAddEntry(currency_id)
+    {
+        let currencyName = document.querySelector(`.currencyData .info tr[data-id='${currency_id}'] .full_name`).innerHTML;
+        if (confirm(`Doriti sa adaugati o valoare noua pentru valuta "${currencyName}"?`)) {
+            let created_at = prompt("Indicati data intrarii (ex. 2020-12-17)");
+            let value = prompt("Indicati valoarea la data indicata (ex. 18.123)");
+
+            if (confirm(`Confirmati ca doriti sa adaugati intrarea cu urmatoarele date?\n\nData: ${created_at}\nValoarea: ${value}`)) {
+                addEntry(currency_id, {value: value, created_at: created_at})
+                    .then((res) => {
+                        fillParticularCurrencyValueHistory();
+                    });
+            }
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         fillCurrencyDataInfo();
         getAvailableCurrencies();
         handleEdit();
         handleRemove();
-
     });
 
 </script>
