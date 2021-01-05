@@ -1,0 +1,29 @@
+POST http://localhost:8080/api/currency/edit
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+
+--WebAppBoundary
+Content-Disposition: form-data; name="id"
+
+6
+--WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="name"
+
+RUB
+--WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="full_name"
+
+Russian Rouble
+--WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="symbol"
+
+₽
+--WebAppBoundary
+
+###

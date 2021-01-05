@@ -2,9 +2,490 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Admin | Currency Service</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&family=Karla&display=swap" rel="stylesheet">
+
+    <style>
+        .container {
+            width: 1170px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        @media screen and (max-width: 1200px) {
+            .container {
+                width: 1080px;
+            }
+        }
+
+        @media screen and (max-width: 1100px) {
+            .container {
+                width: 1024px;
+            }
+        }
+
+        @media screen and (max-width: 1070px) {
+            .container {
+                width: 991px;
+            }
+        }
+
+        @media screen and (max-width: 1000px) {
+            .container {
+                width: 768px;
+            }
+        }
+
+        @media screen and (max-width: 800px) {
+            .container {
+                width: 540px;
+            }
+        }
+
+        @media screen and (max-width: 540px) {
+            .container {
+                width: 100%;
+            }
+        }
+
+        body {
+            background-color: rgb(48, 48, 75);
+        }
+
+        * {
+            color: rgb(232, 233, 240);
+        }
+
+        h1, h2 {
+            font-family: "Karla", serif;
+        }
+
+        p {
+            font-family: "Inconsolata", sans-serif;
+        }
+
+        hr {
+            border-color: rgb(194, 87, 225);
+            border-width: 2px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .spacer {
+            height: 50px;
+            width: 100%;
+        }
+
+        .infoBlock .info * {
+            font-family: "Inconsolata", sans-serif;
+        }
+
+        .infoBlock .info table {
+            border-spacing: 25px;
+        }
+
+        .infoBlock .info th {
+            border-spacing: 25px;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .infoBlock .info {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .infoBlock .info .value {
+            font-weight: bold;
+        }
+
+        .infoBlock select, .infoBlock button, .infoBlock input {
+            color: rgb(232, 233, 240);
+            background-color: rgb(48, 48, 75);
+            border-color: rgb(194, 87, 225);
+            font-family: "Inconsolata", sans-serif;
+
+            padding: 10px;
+            border-radius: 4px;
+            border-width: 2px !important;
+            outline: none !important;
+        }
+
+        footer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #currencyGraph {
+            display: none;
+        }
+
+        .removeCurrency {
+            cursor: pointer;
+        }
+
+        .action {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+
+<div class="container">
+    <div class="header">
+        <h1>Administrarea Valutelor</h1>
+        <div class="right-side">
+            <p>Dragomir Țurcanu | MI-191</p>
+        </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="infoBlock currencyData">
+        <h2>Datele Valutelor</h2>
+        <hr>
+        <div class="info">
+
+            <table>
+
+            </table>
+        </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="infoBlock particularCurrencyData">
+        <h2>Info Valuta</h2>
+        <hr>
+        <p>Doresc sa aflu mai multe despre istoricul <select name="currencySelect" id="currencySelect"></select> <button id="showHistory" onclick="fillParticularCurrencyValueHistory()">Arata Istoricul</button></p>
+        <div class="info">
+            <table></table>
+        </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="infoBlock">
+        <h2>Evolutia in timp</h2>
+        <hr>
+        <p>Valuta <select name="currencySelectGraph" id="currencySelectGraph"></select></p>
+        <p>Data inceput <input type="date" id="startDate"></p>
+        <p>Data finala <input type="date" id="finishDate"></p>
+        <button id="showHistoryGraph" onclick="generateGraph()">Afiseaza graficul</button></p>
+
+        <canvas id="currencyGraph" width="400" height="400"></canvas>
+    </div>
+
+    <div class="spacer"></div>
+
+    <footer><p>Dezvoltat cu entuziasm de catre <b>Dragomir Țurcanu</b> | MI-191 ❤️</p></footer>
+</div>
+
+<script>
+    let availableCurrencies = [];
+
+    async function getCurrencyData() {
+        let response = await fetch("/api/currency");
+        return await response.json();
+    }
+
+    async function getCurrencyValue() {
+        let response = await fetch("/api/currency/value");
+        return await response.json();
+    }
+
+    async function getParticularCurrencyValue(currency_id) {
+        let response = await fetch(`/api/currency/value/${currency_id}`);
+        return await response.json();
+    }
+
+    async function getValuesByDate(start_date, final_date) {
+        let response = await fetch(`/api/currency/value/${start_date}/${final_date}`);
+        return await response.json();
+    }
+
+    async function editCurrency(id, data)
+    {
+        let formData = new FormData();
+        formData.append('id', id);
+        formData.append('name', data.name);
+        formData.append('full_name', data.full_name);
+        formData.append('symbol', data.symbol);
+
+        let response = await fetch('/api/currency/edit',
+            {
+                method: "POST",
+                body: formData
+            });
+        return await response.json();
+    }
+
+    function getAvailableCurrencies() {
+        let currencySelect = document.querySelector('select#currencySelect');
+        let currencySelectGraph = document.querySelector('select#currencySelectGraph');
+
+        if (!currencySelect || !currencySelectGraph) {
+            return;
+        }
+
+        currencySelect.innerHTML = "";
+        currencySelectGraph.innerHTML = "";
+
+        getCurrencyData().then(data => {
+            for (const row of data)  {
+                availableCurrencies[row.id] = {full_name: row.full_name, symbol: row.symbol};
+                currencySelect.innerHTML += `<option value="${row.id}">${row.full_name}</option>`;
+                currencySelectGraph.innerHTML += `<option value="${row.id}">${row.full_name}</option>`;
+            }
+        });
+    }
+
+    function fillCurrencyDataInfo() {
+        let infoDOM = document.querySelector(".currencyData .info table");
+        if (!infoDOM) {
+            return false;
+        }
+        infoDOM.innerHTML = `            <tr>
+                <th>Denumire</th>
+                <th>Abreviere</th>
+                <th>Simbol</th>
+                <th>Valoare</th>
+                <th>Actualizat</th>
+                <th>Modifica</th>
+                <th>Sterge</th>
+            </tr>`;
+        getCurrencyData().then(data => {
+            for (const row of data) {
+                infoDOM.innerHTML += `<tr data-id="${row.id}"><td class="full_name">${row.full_name}</td><td class="name">${row.name}</td><td class="symbol">${row.symbol}</td><td class="value"></td><td class="created_at"></td><td class="action edit_currency">edit</td><td class="action remove_currency">X</td></tr>`;
+            }
+
+            fillCurrencyValueInfo();
+        });
+
+    }
+
+    function fillCurrencyValueInfo() {
+
+        let infoDOM = document.querySelector(".currencyData .info table");
+        if (!infoDOM) {
+            return false;
+        }
+
+        getCurrencyValue().then((data) => {
+            for (const [id, row] of Object.entries(data)) {
+                let item = infoDOM.querySelector(`tr[data-id="${id}"]`);
+
+                if (!item) {
+                    continue;
+                }
+
+                if (row) {
+                    let finalData = row[0];
+                    console.log(finalData);
+                    item.querySelector('.value').innerHTML = finalData.value;
+                    item.querySelector('.created_at').innerHTML = new Date(finalData.date.date).toDateString();
+                }
+            }
+        })
+    }
+
+    function fillParticularCurrencyValueHistory() {
+        let infoDOM = document.querySelector(".particularCurrencyData .info table");
+        if (!infoDOM) {
+            return false;
+        }
+
+        let selectedCurrency = document.querySelector('select#currencySelect');
+        if (!selectedCurrency) {
+            return false;
+        }
+
+        infoDOM.innerHTML = `            <tr>
+                <th>Valoare</th>
+                <th>Actualizat</th>
+            </tr>`;
+        getParticularCurrencyValue(selectedCurrency.value).then(data => {
+            for (const row of data) {
+                infoDOM.innerHTML += `<td class="value">${row.value}</td><td class="created_at">${new Date(row.date.date).toDateString()}</td></tr>`;
+            }
+        });
+    }
+
+    function handleRemove() {
+        document.addEventListener('click', (e) => {
+           if (e.target.matches('.remove_currency'))
+           {
+               const parent = e.target.parentElement;
+               if (parent) {
+                   const itemId = parent.getAttribute('data-id');
+               }
+           }
+        });
+    }
+
+    function handleEdit() {
+        function itemEditMode(parentNode) {
+
+            if (!parentNode) {
+                return false;
+            }
+
+            let full_name = parentNode.querySelector('.full_name');
+            let name = parentNode.querySelector('.name');
+            let symbol = parentNode.querySelector('.symbol');
+            let editCurrency = parentNode.querySelector('.edit_currency');
+            let removeCurrency = parentNode.querySelector('.remove_currency');
+
+            full_name.innerHTML = `<input type='text' name='full_name' value='${full_name.innerText}'>`;
+            name.innerHTML = `<input type='text' name='name' value='${name.innerText}'>`;
+            symbol.innerHTML = `<input type='text' name='symbol' value='${symbol.innerText}'>`;
+
+            editCurrency.classList.remove('edit_currency');
+            editCurrency.classList.add('save_edit_currency');
+            editCurrency.classList.add('action');
+
+            removeCurrency.classList.remove('remove_currency');
+            removeCurrency.classList.add('cancel_edit_currency');
+            removeCurrency.classList.add('action');
+
+            editCurrency.innerText = `actualizeaza`;
+            removeCurrency.innerText = `anuleaza`;
+        }
+
+        function processEditCurrency(parentNode)
+        {
+            let full_name = parentNode.querySelector('input[name="full_name"]');
+            let name = parentNode.querySelector('input[name="name"]');
+            let symbol = parentNode.querySelector('input[name="symbol"]');
+            let id = parentNode.getAttribute('data-id');
+
+            editCurrency(id, {full_name: full_name.value, name: name.value, symbol: symbol.value})
+            .then((res) => {
+                fillCurrencyDataInfo();
+            })
+        }
+
+        function getParentNode(event) {
+            return event.target.parentElement;
+        }
+
+        document.addEventListener('click', (e) => {
+
+            if (e.target.matches('.cancel_edit_currency'))
+            {
+                fillCurrencyDataInfo();
+            }
+
+
+            if (e.target.matches('.save_edit_currency'))
+            {
+                const parent = getParentNode(e);
+                if (parent) {
+                    processEditCurrency(parent);
+                }
+            }
+
+
+            if (e.target.matches('.edit_currency'))
+            {
+                const parent = getParentNode(e);
+                if (parent) {
+                    const itemId = parent.getAttribute('data-id');
+                    itemEditMode(parent);
+                }
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        fillCurrencyDataInfo();
+        getAvailableCurrencies();
+        handleEdit();
+        handleRemove();
+
+    });
+
+</script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css" integrity="sha512-/zs32ZEJh+/EO2N1b0PEdoA10JkdC3zJ8L5FTiQu82LR9S/rOQNfQN7U59U9BC12swNeRAz3HSzIL2vpp4fv3w==" crossorigin="anonymous" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous"></script>
+<script>
+    var ctx = document.getElementById('currencyGraph');
+    let currencyGraph = null;
+    Chart.defaults.global.defaultFontColor = "rgba(232, 233, 240, 1.0)";
+    Chart.defaults.global.defaultFontFamily = "Inconsolata, sans-serif";
+
+    function generateGraph() {
+        const currencyIdInput = document.querySelector('#currencySelectGraph');
+        const startDateInput = document.querySelector('#startDate');
+        const finishDateInput = document.querySelector('#finishDate');
+        ctx.style.display = "block";
+
+        if (!(currencyIdInput && startDateInput && finishDateInput)) {
+            return;
+        }
+
+        currencyId = currencyIdInput.value;
+        startDate = startDateInput.value;
+        finishDate = finishDateInput.value;
+
+        if (!startDate || !finishDate) {
+            alert("Setati data pentru grafic!");
+        }
+
+        getValuesByDate(startDate, finishDate).then((data) => {
+            if (currencyGraph) {
+                currencyGraph.clear();
+            }
+
+
+            let valuepoints = [];
+            let datepoints = [];
+            let fullName = "";
+
+            for (const row of data) {
+                if (row.currency_id !== parseInt(currencyId)) {
+                    continue;
+                }
+
+                fullName = row.full_name;
+                valuepoints.push(row.value);
+                datepoints.push(row.date.date.replace(" 00:00:00.000000", ""));
+            }
+
+            console.table(valuepoints, datepoints);
+
+            currencyGraph = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: datepoints,
+                    datasets: [{
+                        label: `Curs pentru ${fullName}`,
+                        borderColor: "rgba(194, 87, 225, 1.0)",
+                        pointBorderColor: "rgba(148, 159, 224, 1.0)",
+                        data: valuepoints,
+                    }]
+                },
+                options: {
+                }
+            });
+
+            console.log(data);
+        })
+    }
+</script>
 
 </body>
 </html>

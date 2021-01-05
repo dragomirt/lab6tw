@@ -70,6 +70,41 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
         }
     });
 
+//    Edit currency
+    $group->post('/currency/edit', function(Request $request, Response $response) use (&$entityManager) {
+        $data = $request->getParsedBody();
+        try {
+            $id = $data['id'];
+
+            if ($id === null) {
+                $response->getBody()->write(json_encode([]));
+                return $response;
+            }
+
+            $currency = $entityManager->getRepository(Currency::class)->find($id);
+            if ($currency === null) {
+                $response->getBody()->write(json_encode([]));
+                return $response;
+            }
+
+            $name = $data['name'];
+            $fullName = $data['full_name'];
+            $symbol = $data['symbol'];
+
+            $currency->setName($name);
+            $currency->setFullName($fullName);
+            $currency->setSymbol($symbol);
+            $entityManager->flush();
+
+            $response->getBody()->write(json_encode($currency->getId()));
+            return $response;
+
+        } catch (Exception $e) {
+            $response->getBody()->write(print_r($e, true));
+            return $response;
+        }
+    });
+
 // Get all values
     $group->get('/currency/value', function(Request $request, Response $response) use (&$entityManager) {
         $values = $entityManager->getRepository(CurrencyValue::class)->findBy([], ['created_at' => 'DESC']);
