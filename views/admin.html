@@ -193,6 +193,8 @@
 </div>
 
 <script>
+    let login, password;
+
     let availableCurrencies = [];
 
     async function getCurrencyData() {
@@ -223,19 +225,25 @@
         formData.append('full_name', data.full_name);
         formData.append('symbol', data.symbol);
 
+        let headers = new Headers();
+        headers.set('Authorization', 'Basic ' + btoa(login + ":" + password));
         let response = await fetch('/api/currency/edit',
             {
                 method: "POST",
-                body: formData
+                body: formData,
+                headers: headers
             });
         return await response.json();
     }
 
     async function removeCurrency(id)
     {
+        let headers = new Headers();
+        headers.set('Authorization', 'Basic ' + btoa(login + ":" + password));
         let response = await fetch(`/api/currency/${id}`,
             {
-                method: "DELETE"
+                method: "DELETE",
+                headers: headers
             });
         return await response.json();
     }
@@ -248,7 +256,7 @@
         formData.append('symbol', data.symbol);
 
         let headers = new Headers();
-        headers.set('Authorization', 'Basic ' + btoa('pip' + ":" + 'pop'));
+        headers.set('Authorization', 'Basic ' + btoa(login + ":" + password));
 
         let response = await fetch('/api/currency/add',
             {
@@ -266,19 +274,25 @@
         formData.append('value', data.value);
         formData.append('created_at', data.created_at);
 
+        let headers = new Headers();
+        headers.set('Authorization', 'Basic ' + btoa(login + ":" + password));
         let response = await fetch('/api/currency/value/add',
             {
                 method: "POST",
-                body: formData
+                body: formData,
+                headers: headers
             });
         return await response.json();
     }
 
     async function removeEntry(entry_id)
     {
+        let headers = new Headers();
+        headers.set('Authorization', 'Basic ' + btoa(login + ":" + password));
         let response = await fetch(`/api/currency/value/${entry_id}`,
             {
-                method: "DELETE"
+                method: "DELETE",
+                headers: headers
             });
         return await response.json();
     }
@@ -521,7 +535,14 @@
 
     }
 
+    function handleAuth()
+    {
+        login = prompt("Inserati login-ul de la panelul admin");
+        password = prompt("Inserati parola de la panelul admin");
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
+        handleAuth();
         fillCurrencyDataInfo();
         getAvailableCurrencies();
         handleEdit();

@@ -13,12 +13,17 @@ class AdminMiddleware implements \Psr\Http\Server\MiddlewareInterface
         $authorization = $request->getHeader("Authorization");
         $checkCredentials = "Basic " . base64_encode($_ENV['ADMIN_LOGIN'] . ":" . $_ENV['ADMIN_PASSWORD']);
 
-        if ($authorization === $checkCredentials) {
-            $response = $handler->handle($request);
-            return $response;
+        $nullResponse = new \Slim\Psr7\Response();
+        $nullResponse->getBody()->write(json_encode([]));
+
+        if (count($authorization) === 0) {
+            return $nullResponse;
         }
-        $response = new \Slim\Psr7\Response();
-        $response->getBody()->write(json_encode([]));
-        return $response;
+
+        if ($authorization[0] === $checkCredentials) {
+            return $handler->handle($request);
+        }
+
+        return $nullResponse;
     }
 }
