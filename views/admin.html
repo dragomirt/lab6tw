@@ -231,6 +231,15 @@
         return await response.json();
     }
 
+    async function removeCurrency(id)
+    {
+        let response = await fetch(`/api/currency/${id}`,
+            {
+                method: "DELETE"
+            });
+        return await response.json();
+    }
+
     function getAvailableCurrencies() {
         let currencySelect = document.querySelector('select#currencySelect');
         let currencySelectGraph = document.querySelector('select#currencySelectGraph');
@@ -329,6 +338,12 @@
                const parent = e.target.parentElement;
                if (parent) {
                    const itemId = parent.getAttribute('data-id');
+                   if (confirm(`Sunteti sigur ca doriti sa stergeti valuta "${parent.querySelector('.full_name').innerHTML}"?`))
+                   {
+                       removeCurrency(itemId).then((res) => {
+                           fillCurrencyDataInfo();
+                       })
+                   }
                }
            }
         });

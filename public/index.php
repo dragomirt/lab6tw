@@ -214,6 +214,13 @@ $app->group('/api', function (\Slim\Routing\RouteCollectorProxy $group) use (&$e
             return $response;
         }
 
+        $currencyValues = $currency->getValues();
+        foreach ($currencyValues as $value) {
+            $entityManager->remove($value);
+        }
+
+        $entityManager->flush();
+
         $currencyId = $currency->getId();
 
         $entityManager->remove($currency);
